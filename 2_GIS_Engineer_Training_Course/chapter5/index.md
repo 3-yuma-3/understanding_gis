@@ -26,5 +26,21 @@
       出店の記載方法は、「ハザードマップポータルサイト」として、当該ページへのリンクをつけてください
     ```
 
+### 5-2-3. 避難所位置を表示する
+- [指定緊急避難所データ (国土地理院)](https://www.gsi.go.jp/bousaichiri/hinanbasho.html)
+- QGISを使って、 `mergeFromCity.csv` を `skhb.geojson` に変換
+
+```bash
+$ tippecanoe -e skhb -l skhb -Z5 -z8 -pf -pk -pC -P skhb.geojson
+# -e: skhbフォルダに
+# -l: skhbというレイヤー名で
+# -Z5 -z8: ズームレベル5~8の範囲で
+# -pf: タイル内の地物数制限なしに
+# -pk: タイルサイズ制限なしに
+# -pC: gzip圧縮をせずに
+# -P: GeoJSONマルチスレッドで読み込む
+```
+
+- 上記コマンドで生成された `skhbフォルダ` を、`location-app` の `publicフォルダ` に配置
 
 ## 5-3. 実践編Part2: スマートフォンで利用できるようにする

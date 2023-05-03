@@ -66,6 +66,14 @@ const map = new maplibregl.Map({
         minzoom: 2, maxzoom: 17, tileSize: 256
       },
       // ↑重ねるハザードマップここまで
+      skhb: {
+        // 指定緊急避難所ベクトルタイル
+        type: 'vector',
+        tiles: [
+          `${location.href.replace('/index.html', '')}/skhb/{z}/{x}/{y}.pbf`,
+        ],
+        minzoom: 5, maxzoom: 8
+      }
     },
     layers: [
       // 背景地図レイヤー
@@ -98,6 +106,18 @@ const map = new maplibregl.Map({
         paint: { 'raster-opacity': 0.7 }, layout: { visibility: 'none' }
       },
       // ↑重ねるハザードマップここまで
+      {
+        // 指定緊急避難所
+        id: 'skhb-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        paint: {
+          'circle-color': '#6666cc',
+          // z－無レベルに応じた円の大きさ
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
+          ],
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff'
+        }
+      }
     ]
   }
 })
