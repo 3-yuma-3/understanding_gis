@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>サンプルタイトル</title>
+    <!-- MapLibre GL JS を読み込み -->
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    </head>
+    <body>
+      <div id="map" style="height: 80vh"></div>
+      <script>
+        [1].map(async target => {
+          // タイルのURLはhttpから始まるフルパスである必要があるため、http~~/MapLibre.htmlのhttp://~~までを取得する
+          const path = location.href.replace('./MapLibre.html', '');
+          // ベクトルタイルが、このファイルからの相対パスで `.tiles` ディレクトリに保存されているとする
+          const vectorTileUrl = `${path}/tiles/{z}/{x}/{y}.pbf`;
+
+          // MapLibreインスタンスを初期化
+          const map = new maplibregl.Map({
+            container: 'map', center: [137.1, 36.5], zoom: 4,
+            style: {
+              // MapLibre-Style
+              version: 8,
+              sources: {
+                // 地図上で使うデータを定義する
+                osm: {
+                  type: 'raster', // ラスタータイル
+                  tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                  tileSize: 256, // タイルの解像度, デフォルトは512
+                },
+                admin: {
+                  type: 'vector', // ベクトルタイル
+                  tiles: [vectorTileUrl],
+                  maxzoom: 8,
+                },
+              },
+              layers: [
+                {
+                  id: 'osm-layer',
+                  source: 'osm', // 使うデータをsourcesのkeyで指定する
+                  type: 'raster'
+                },
+                {
+                  id: 'admin-layer',
+                  source: 'admin', // sourcesで定義したうち、このlayerで用いるデータのkeyを指定する
+                  'source-layer': 'admin', // ベクトルタイル内のレイヤー名を指定する
+                  type: 'fill', // データをどのように描画するか指定する: ここではポリゴン(fill)として描画する
+                  paint: {
+                    'fill-color': '#fa0', // ポリゴンの色
+                    'fill-opacity': 0.5, // ポリゴンの透過度
+                    'fill-outline-color': '#00f', // ポリゴンの外周線の色
+                  }
+                },
+              ]
+            }
+          })
+        })
+      </script>
+    </body>
+  </head>
+</html>
