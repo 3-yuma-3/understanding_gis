@@ -106,18 +106,112 @@ const map = new maplibregl.Map({
         paint: { 'raster-opacity': 0.7 }, layout: { visibility: 'none' }
       },
       // ↑重ねるハザードマップここまで
+      // ↓指定緊急避難所ここから
       {
-        // 指定緊急避難所
-        id: 'skhb-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        id: 'skhb-1-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
         paint: {
           'circle-color': '#6666cc',
-          // z－無レベルに応じた円の大きさ
+          // ズームレベルに応じた円の大きさ
           'circle-radius': [
             'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
           ],
-          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff'
-        }
-      }
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
+        },
+          filter: ['get', 'disaster1'], // 属性:disaster1がtrueの地物のみ表示する
+          layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
+      },
+      {
+        id: 'skhb-2-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        paint: {
+          'circle-color': '#6666cc',
+          // ズームレベルに応じた円の大きさ
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
+          ],
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
+        },
+          filter: ['get', 'disaster2'],
+          layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
+      },
+      {
+        id: 'skhb-3-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        paint: {
+          'circle-color': '#6666cc',
+          // ズームレベルに応じた円の大きさ
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
+          ],
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
+        },
+          filter: ['get', 'disaster3'],
+          layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
+      },
+      {
+        id: 'skhb-4-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        paint: {
+          'circle-color': '#6666cc',
+          // ズームレベルに応じた円の大きさ
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
+          ],
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
+        },
+          filter: ['get', 'disaster4'],
+          layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
+      },
+      {
+        id: 'skhb-5-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        paint: {
+          'circle-color': '#6666cc',
+          // ズームレベルに応じた円の大きさ
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
+          ],
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
+        },
+          filter: ['get', 'disaster5'],
+          layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
+      },
+      {
+        id: 'skhb-6-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        paint: {
+          'circle-color': '#6666cc',
+          // ズームレベルに応じた円の大きさ
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
+          ],
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
+        },
+          filter: ['get', 'disaster6'],
+          layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
+      },
+      {
+        id: 'skhb-7-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        paint: {
+          'circle-color': '#6666cc',
+          // ズームレベルに応じた円の大きさ
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
+          ],
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
+        },
+          filter: ['get', 'disaster7'],
+          layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
+      },
+      {
+        id: 'skhb-8-layer', source: 'skhb', 'source-layer': 'skhb', type: 'circle',
+        paint: {
+          'circle-color': '#6666cc',
+          // ズームレベルに応じた円の大きさ
+          'circle-radius': [
+            'interpolate', ['linear'], ['zoom'], 5, 2, 14, 6
+          ],
+          'circle-stroke-width': 1, 'circle-stroke-color': '#ffffff',
+        },
+          filter: ['get', 'disaster8'],
+          layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
+      },
+      // ↑指定緊急避難所ここまで
     ]
   }
 })
@@ -135,4 +229,15 @@ map.on('load', () => {
   })
   // 第2引数で場所を指定できる: bottom-right など
   map.addControl(opacity, 'top-left')
+
+  // 指定緊急避難場所レイヤーのコントロール
+  const opacitySkhb = new OpacityControl({
+    baseLayers: {
+      'skhb-1-layer': '洪水', 'skhb-2-layer': '崖崩れ/土石流/地すべり',
+      'skhb-3-layer': '高潮', 'skhb-4-layer': '地震',
+      'skhb-5-layer': '津波', 'skhb-6-layer': '大規模な火事',
+      'skhb-7-layer': '内水氾濫', 'skhb-8-layer': '火山現象',
+    }
+  })
+  map.addControl(opacitySkhb, 'top-right')
 })
