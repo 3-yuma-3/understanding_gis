@@ -1,8 +1,10 @@
 // MapLibre GL JS の読み込み
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import OpacityControl from 'maplibre-gl-opacity';
+import 'maplibre-gl-opacity/dist/maplibre-gl-opacity.css';
 
-const cmap = new maplibregl.Map({
+const map = new maplibregl.Map({
   container: 'map', // div要素のid
   zoom: 5, // 初期表示のズーム
   center: [138, 37], // 初期表示の中心
@@ -72,24 +74,45 @@ const cmap = new maplibregl.Map({
       },
       // ↓重ねるハザードマップここから
       {
-        id: 'hazard_flood-layer', source: 'hazard_flood', type: 'raster', paint: { 'raster-opacity': 0.7 }
+        id: 'hazard_flood-layer', source: 'hazard_flood', type: 'raster',
+        paint: { 'raster-opacity': 0.7 }, layout: { visibility: 'none' }
       },
       {
-        id: 'hazard_hightide-layer', source: 'hazard_hightide', type: 'raster', paint: { 'raster-opacity': 0.7 }
+        id: 'hazard_hightide-layer', source: 'hazard_hightide', type: 'raster',
+        paint: { 'raster-opacity': 0.7 }, layout: { visibility: 'none' }
       },
       {
-        id: 'hazard_tsunami-layer', source: 'hazard_tsunami', type: 'raster', paint: { 'raster-opacity': 0.7 }
+        id: 'hazard_tsunami-layer', source: 'hazard_tsunami', type: 'raster',
+        paint: { 'raster-opacity': 0.7 }, layout: { visibility: 'none' }
       },
       {
-        id: 'hazard_doseki-layer', source: 'hazard_doseki', type: 'raster', paint: { 'raster-opacity': 0.7 }
+        id: 'hazard_doseki-layer', source: 'hazard_doseki', type: 'raster',
+        paint: { 'raster-opacity': 0.7 }, layout: { visibility: 'none' }
       },
       {
-        id: 'hazard_kyukeisha-layer', source: 'hazard_kyukeisha', type: 'raster', paint: { 'raster-opacity': 0.7 }
+        id: 'hazard_kyukeisha-layer', source: 'hazard_kyukeisha', type: 'raster',
+        paint: { 'raster-opacity': 0.7 }, layout: { visibility: 'none' }
       },
       {
-        id: 'hazard_jisuberi-layer', source: 'hazard_jisuberi', type: 'raster', paint: { 'raster-opacity': 0.7 }
+        id: 'hazard_jisuberi-layer', source: 'hazard_jisuberi', type: 'raster',
+        paint: { 'raster-opacity': 0.7 }, layout: { visibility: 'none' }
       },
       // ↑重ねるハザードマップここまで
     ]
   }
+})
+
+// マップの初期ロード完了時に発火するイベントを定義
+map.on('load', () => {
+  // 背景地図・重ねるタイル地図のコントロール
+  const opacity = new OpacityControl({
+    baseLayers: {
+      // layer-id: レイヤー名
+      'hazard_flood-layer': '洪水浸水想定区域', 'hazard_hightide-layer': '高潮浸水想定区域',
+      'hazard_tsunami-layer': '津波浸水想定区域', 'hazard_doseki-layer': '土石流警戒区域',
+      'hazard_kyukeisha-layer': '急傾斜警戒区域', 'hazard_jisuberi-layer': '地すべり警戒区域',
+    }
+  })
+  // 第2引数で場所を指定できる: bottom-right など
+  map.addControl(opacity, 'top-left')
 })
