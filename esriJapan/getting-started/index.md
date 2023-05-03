@@ -1,0 +1,6 @@
+# [GISを始めよう](https://www.esrij.com/getting-started/)
+1. [GIS(地理情報システム)とは](./1-what-is-gis/)
+2. [GIS基礎解説](./2-gis-guide/)
+3. [自宅で学ぼう](./3-learn-at-home/)
+4. [もっとGISを学んでみよう](./4-learn-more/)
+5. [ポータルサイト](./5-portals/)
