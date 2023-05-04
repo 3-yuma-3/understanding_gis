@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>サンプルタイトル</title>
+    <!-- MapLibre GL JS を読み込み -->
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    </head>
+    <body>
+      <div id="map" style="height: 80vh"></div>
+      <script>
+        [1].map(async target => {
+          let A16 = null;
+          let N02 = null;
+
+          await fetch('http://127.0.0.1:4567/geojson/A16-15_00_DID')
+          .then((res) => res.json())
+          .then((data) => A16 = data)
+          await fetch('http://127.0.0.1:4567/geojson/N02-21_RailroadSection')
+          .then((res) => res.json())
+          .then((data) => N02 = data)
+
+          console.log(`A16: ${JSON.stringify(A16)}`)
+          console.log(`N02: ${JSON.stringify(N02)}`)
+
+          // MapLibreインスタンスを初期化
+          const map = new maplibregl.Map({
+            container: 'map', center: [137.1, 36.5], zoom: 4,
+            style: {
+              // MapLibre-Style
+              version: 8,
+              sources: {
+                // 地図上で使うデータを定義する
+                osm: {
+                  type: 'raster', // ラスタータイル
+                  tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                  tileSize: 256, // タイルの解像度, デフォルトは512
+                  maxzoom: 19,
+                  attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                },
+                polygon: {
+                  type: 'geojson',
+                  data: A16
+                },
+                line: {
+                  type: 'geojson',
+                  data: N02
+                }
+              },
+              layers: [
+                {
+                  id: 'osm-layer',
+                  source: 'osm', // 使うデータをsourcesのkeyで指定する
+                  type: 'raster'
+                },
+                {
+                  id: 'polygon-layer', source: 'polygon', type: 'fill',
+                  paint: {
+                    // Leafletの場合と同じような色表現をするための設定
+                    'fill-color': [
+                      'rgba', 255, 0, 0, [
+                        'min', 1, ['/', ['get', '人口'], ['get', '面積']]
+                      ]
+                    ]
+                  }
+                },
+                {
+                  id: 'line-layer', source: 'line', type: 'line',
+                  paint: {
+                    // Leafletの場合と同じような色表現をするための設定
+                    'line-color': [
+                      'case',
+                      ['==', ['get', 'N02_022'], '1'], 'green',
+                      ['==', ['get', 'N02_022'], '2'], '#00f', // blue
+                      ['==', ['get', 'N02_022'], '3'], '#ff0000', // red
+                      ['==', ['get', 'N02_022'], '4'], '#ffaa00', // orange
+                      ['==', ['get', 'N02_022'], '5'], '#aa00ff', // purple
+                      '#000000'
+                    ],
+                    'line-width': [
+                      'case',
+                      ['==', ['get', 'N02_022'], '1'], 10,
+                      ['==', ['get', 'N02_022'], '2'], 7,
+                      ['==', ['get', 'N02_022'], '3'], 4,
+                      ['==', ['get', 'N02_022'], '4'], 4,
+                      ['==', ['get', 'N02_022'], '5'], 4,
+                      0
+                    ]
+                  },
+                  layout: { 'line-cap': 'round' }
+                }
+              ]
+            }
+          })
+        })
+      </script>
+    </body>
+  </head>
+</html>
