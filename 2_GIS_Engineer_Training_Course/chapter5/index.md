@@ -94,3 +94,12 @@ const dist = distance(point1, point2)
 - クライアントサイドで地形計算・表示を行っているため、相応の負かが発生することには留意が必要
 
 ## 5-3. 実践編Part2: スマートフォンで利用できるようにする
+### COLUMN スマホでの位置情報アプリ開発の選択肢
+- OS毎のネイティブMapView
+- サードパーティのネイティブライブラリを利用
+  - 例) MapboxやMapLibreのSDKなど
+- webベースで改あh津市、PWAやWebViewで利用する(本書の方針)
+
+### 5-3-1. PWAの設定
+- PWAの設定のためには `manifest.json` と `ServiceWorker` ファイルを作成し、`index.html` から読み込ませる必要がある
+- ServiceWorkerを使えば、cache機能やpush通知をPWAで実現することが可能
