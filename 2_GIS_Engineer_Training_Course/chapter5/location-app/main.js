@@ -3,6 +3,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import OpacityControl from 'maplibre-gl-opacity';
 import 'maplibre-gl-opacity/dist/maplibre-gl-opacity.css';
+import distance from '@turf/distance';
 
 const map = new maplibregl.Map({
   container: 'map', // div要素のid
@@ -73,6 +74,13 @@ const map = new maplibregl.Map({
           `${location.href.replace('/index.html', '')}/skhb/{z}/{x}/{y}.pbf`,
         ],
         minzoom: 5, maxzoom: 8
+      },
+      route: {
+        // 現在位置と最寄りの避難施設を繋ぐライン
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection', features: []
+        }
       }
     },
     layers: [
@@ -212,6 +220,10 @@ const map = new maplibregl.Map({
           layout: { visibility: 'none' } // レイヤーの表示はOpacityControlで操作するためデフォルトでは非表示にしておく
       },
       // ↑指定緊急避難所ここまで
+      {
+        id: 'route-layer', source: 'route', type: 'line',
+        paint: { 'line-color': '#33aaff', 'line-width': 4, }
+      }
     ]
   }
 })
@@ -279,9 +291,9 @@ map.on('load', () => {
   })
 
   // 地図上でマウスが移動した際のイベント
-  map.on('mousemove', (e) => {
+  map.on('mousemove', (event) => {
     // マウスカーソルいかに指定緊急避難所レイヤーが存在するかどうかをチェック
-    const features = map.queryRenderedFeatures(e.point, {
+    const features = map.queryRenderedFeatures(event.point, {
       layers: [
         'skhb-1-layer', 'skhb-2-layer', 'skhb-3-layer', 'skhb-4-layer',
         'skhb-5-layer', 'skhb-6-layer', 'skhb-7-layer', 'skhb-8-layer',
@@ -295,7 +307,90 @@ map.on('load', () => {
     }
   })
 
+  let userLocation = null; // ユーザーの最新の現在地を保持する変数
+
   // MapLibre GL JS の現在地取得機能
   const geolocationControl = new maplibregl.GeolocateControl({ trackUserLocation: true})
   map.addControl(geolocationControl, 'bottom-right')
+  geolocationControl.on('geolocate', (event) => {
+    userLocation = [event.coords.longitude, event.coords.latitude]
+  })
+
+  // 現在選択されている指定緊急避難場所レイヤー(skhb)を特定しそのfilter条件を返す
+  const getCurrentSkhbLayerFilter = () => {
+    const style = map.getStyle(); // style定義を取得
+    const skhbLayers = style.layers.filter((layer) => {
+      return layer.id.startsWith('skhb') // skhb から始まるlayterを抽出
+    })
+    // 現在表示中のレイヤーを取得
+    const visibleSkhbLayers = skhbLayers.filter(((layer) => layer.layout.visibility === 'visible'))
+    return visibleSkhbLayers[0].filter; // 表示中レイヤーのfilter条件を返す
+  }
+
+  // 緯軽度を渡すと最寄りの指定緊急避難場所を返す
+  const getNearestFeature = (longitude, latitude) => {
+    // 現在表示中の指定緊急避難場所のタイルデータ(=地物)を取得する
+    const currentSkhbLayerFilter = getCurrentSkhbLayerFilter();
+    const features = map.querySourceFeatures('skhb', {
+      sourceLayer: 'skhb',
+      filter: currentSkhbLayerFilter, // 表示中のレイヤーのfilter条件に合致する地物のみを抽出
+    })
+
+    // 現在地に最も近い地物を見つける
+    const nearestFeature = features.reduce((minDistFeature, feature) => {
+      const dist = distance([longitude, latitude], feature.geometry.coordinates)
+
+      if (minDistFeature === null || minDistFeature.properties.dist > dist)
+      // 1つ目の地物、もしくは、現在の地物が最寄りの場合は、最寄り地物データを更新
+      return {
+        ...feature, properties: { ...feature.properties, dist}
+      }
+
+      return minDistFeature; // 最寄り地物を更新しない場合
+    }, null);
+
+    return nearestFeature;
+  }
+
+  // 地図画面が描画される毎フレーム毎に、ユーザーの現在地から最寄りの避難施設を算出する
+  map.on('render', () => {
+    // GeolocationControlがオフなら現在地を消去する
+    if (geolocationControl._watchState === 'OFF') userLocation = null;
+
+    // ズームが一定値以下または現在地が計算されていない場合は計算を行わない
+    if (map.getZoom() < 7 || userLocation === null) return;
+
+    // 現在地の最寄りの地物を取得
+    const nearestFeature = getNearestFeature(userLocation[0], userLocation[1])
+  })
+
+  // 地図画面が描画される毎フレームごとに、ユーザー現在地と最寄りの避難施設の線分を描画する
+  map.on('render', () => {
+    // GeolocationControlがオフなら現在地を消去する
+    if (geolocationControl._watchState === 'OFF') userLocation = null;
+
+    // ズームが一定値以下または現在地が計算されていない場合はラインを書きょする
+    if (map.getZoom() < 7 || userLocation === null) {
+      map.getSource('route').setData({
+        type: 'FeatureCollection', features: []
+      })
+      return;
+    }
+
+    // 現在地の最寄りの地物を取得
+    const nearestFeature = getNearestFeature(userLocation[0], userLocation[1])
+
+    // 現在地と最寄りの地物を繋いだラインのGeoJSON-Feature
+    const routeFeature = {
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: [userLocation, nearestFeature._geometry.coordinates]
+      }
+    }
+    // style.sources.routeのGeoJSONデータを更新する
+    map.getSource('route').setData({
+      type: 'FeatureCollection', features: [routeFeature]
+    })
+  })
 })

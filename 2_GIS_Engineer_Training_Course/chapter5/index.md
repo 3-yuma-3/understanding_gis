@@ -56,6 +56,16 @@ $ tippecanoe -e skhb -l skhb -Z5 -z8 -pf -pk -pC -P skhb.geojson
 
 ### 5-2-5. ユーザーの現在地を表示する
 
+### 5-2-6. 発展: ユーザーの最寄りの避難場所を特定する
 
+```js
+// @turf/distanceで2点間の距離を計算する
+import distance from '@turf/distance'; // 値点間の距離を計算するモジュール
+
+const point1 = [140, 40]
+const point2 = [138, 38]
+const dist = distance(point1, point2)
+// 281.6331971379355 [km]
+```
 
 ## 5-3. 実践編Part2: スマートフォンで利用できるようにする
