@@ -277,4 +277,21 @@ map.on('load', () => {
       )
       .addTo(map);
   })
+
+  // 地図上でマウスが移動した際のイベント
+  map.on('mousemove', (e) => {
+    // マウスカーソルいかに指定緊急避難所レイヤーが存在するかどうかをチェック
+    const features = map.queryRenderedFeatures(e.point, {
+      layers: [
+        'skhb-1-layer', 'skhb-2-layer', 'skhb-3-layer', 'skhb-4-layer',
+        'skhb-5-layer', 'skhb-6-layer', 'skhb-7-layer', 'skhb-8-layer',
+      ]
+    })
+
+    if (features.length > 0) {
+      map.getCanvas().style.cursor = 'pointer'; // 地物が存在する場合はカーソルをpointerに変更
+    } else {
+      map.getCanvas().style.cursor = ''; // 存在しない場合はデフォルト
+    }
+  })
 })
