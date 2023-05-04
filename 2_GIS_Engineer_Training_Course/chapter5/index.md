@@ -52,5 +52,7 @@ $ tippecanoe -e skhb -l skhb -Z5 -z8 -pf -pk -pC -P skhb.geojson
   7. 内水氾濫
   8. 火山減少
 
+### 5-2-4. クリックイベントを追加する
+
 
 ## 5-3. 実践編Part2: スマートフォンで利用できるようにする
