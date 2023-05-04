@@ -294,4 +294,8 @@ map.on('load', () => {
       map.getCanvas().style.cursor = ''; // 存在しない場合はデフォルト
     }
   })
+
+  // MapLibre GL JS の現在地取得機能
+  const geolocationControl = new maplibregl.GeolocateControl({ trackUserLocation: true})
+  map.addControl(geolocationControl, 'bottom-right')
 })
