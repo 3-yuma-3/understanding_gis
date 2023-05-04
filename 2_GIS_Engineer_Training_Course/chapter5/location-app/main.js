@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import OpacityControl from 'maplibre-gl-opacity';
 import 'maplibre-gl-opacity/dist/maplibre-gl-opacity.css';
 import distance from '@turf/distance';
+import { useGsiTerrainSource } from 'maplibre-gl-gsi-terrain';
 
 const map = new maplibregl.Map({
   container: 'map', // div要素のid
@@ -393,4 +394,29 @@ map.on('load', () => {
       type: 'FeatureCollection', features: [routeFeature]
     })
   })
+
+  // 地形データ生成 (地理院標高タイル)
+  const gsiTerrainSource = useGsiTerrainSource(maplibregl.addProtocol)
+  // 地形データ追加 (type=raster-dem)
+  map.addSource('terrain', gsiTerrainSource)
+
+  // 陰影図追加
+  map.addLayer(
+    {
+      id: 'hillshade', source: 'terrain', // type=raster-dem のsourceを指定
+      paint: {
+        'hillshade-illumination-anchor': 'map', // 陰影の方向の基準
+        'hillshade-exaggeration': 0.2 // 陰影の強さ
+      }
+    },
+    'hazard_jisuberi-layer', // どのレイヤーの手前に追加するかIDで指定
+  )
+
+  // 3D地形
+  map.addControl(
+    new maplibregl.TerrainControl({
+      source: 'terrain', // type="raster-dem" のsourceのID
+      exaggeration: 1, //標高を強調する倍率
+    })
+  )
 })

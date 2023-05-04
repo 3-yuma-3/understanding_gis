@@ -68,4 +68,29 @@ const dist = distance(point1, point2)
 // 281.6331971379355 [km]
 ```
 
+### 5-2-6. 発展: 地形データを活用する
+
+#### COLUMN TerrainRGB
+- DEM(地形データ)を画像として表示すると白黒になる
+- TerrainRGBに変換すると緑青になる
+- 一般的なDEMは、メートル単位の実数値のTIFFファイル
+- webで使われている画像データは、各値が0~255(8bit)のRGB画像
+- DEMをwebで利用できるように変換する際は、実数値をRGB値に変換する `一定のルール` が必要
+- 各値が8bitのRGB画像の1ピクセルは24bitなので、16,777,216通りの値を表現することが可能になる
+- TerrainRGBはこのルールを定義したもので、変換式(=エンコーディング)は以下
+  - `標高 = -10000 + ((R値 × 256 × 256 + G値 × 256 + B値) × 0.1)`
+- この考え方はDEMに限らず実数値を持つラスターデータをwebで効率よく取り回したい場合に応用される
+- TerrainRGB形式の地形データは、 [Mapbox社](https://www.mapbox.com/) , [MapTiler社](https://www.maptiler.com/) が全世界文をAPI提供している
+- 国内の地形は国土地理院から `地理院標高タイル` が配信されている
+  - 地理院標高タイルは10mの地上解像度で配信されており、詳細な地形表現が可能だが、TerrainRGB形式ではないエンコーディングを使用しているため、TerrianRGB形式に変換する必要がある
+  - この変換を自動で行えるライブラリが [maplibre-gl-gsi-terrain (著者のライブラリ)](https://github.com/Kanahiro/maplibre-gl-gsi-terrain)
+
+#### 陰影図を表示する
+- `MapLibre GL JS` には `hillshade` というtypeのレイヤが存在する
+- 地形データである `type="raster-dem"` の source と組み合わせることで、陰影図を表示できる
+
+#### 3D地形を表示する
+- `MapLibre GL JS` では、 `type="raster-dem"` のsourceを使って、3D地形を表示することも可能
+- クライアントサイドで地形計算・表示を行っているため、相応の負かが発生することには留意が必要
+
 ## 5-3. 実践編Part2: スマートフォンで利用できるようにする
