@@ -10,8 +10,12 @@
 
 ## 3. GeoJSON (RF7946)
 - [The GeoJSON Format (RFC7946)](https://www.rfc-editor.org/rfc/rfc7946)
+  - [RFC 7946 - The GeoJSON Format 日本語訳](https://tex2e.github.io/rfc-translater/html/rfc7946.html)
 - [GeoJSON RFC7946](./3_GeoJSON_RFC7946/)
 
+## 4. Well-known text representation of coordinate reference systems (OGC)
+- [Open Geospatial Consortium](https://www.ogc.org/)
+- [Home / Standards / Well-known text representation of coordinate reference systems](https://www.ogc.org/standard/wkt-crs/)
 
 ## sinatra
 - javascriptでfetchしようとするとcross originのエラーが出てgeojsonファイルが読み込めなかったので、CORSの設定をしたsinatraからgeojsonを返却してやる
